@@ -7,6 +7,7 @@ import pandas_ta as ta
 import matplotlib.pyplot as plt
 
 
+
 # Часть для обработки файла с данными
 hist_candles_brent = pd.read_csv('csv_files/brent062022_report.csv')
 
@@ -56,37 +57,31 @@ def ma_ema_cross_strategy_test(historical_candles_df):
 
 
     for indx in range(len(historical_candles_df)):
-        ma_t_indx = indx
-        ma_t_min_1_indx = indx - 1
-        if ma_t_min_1_indx < 0:
-            continue
-        ema_t_indx = indx
-        ema_t_min_1_indx = indx - 1
-        if ema_t_min_1_indx < 0:
-            continue
+
+        indx_min_1 = indx - 1
+
         # Условие которое может быть пригодится
-        # print(ma_t, ma_t_min_1, ema_t, ema_t_min_1)
-        #
         # 1 Condition
-        # if ma.iloc[ma_t_indx] > ma.iloc[ma_t_min_1_indx]:
+        # if ma.iloc[indx] > ma.iloc[indx_min_1]:
         #    check_rule[0] = True
         # else:
         #     check_rule[0] = False
+
         # 2 Condition
-        if ema.iloc[ema_t_indx] > ema.iloc[ema_t_min_1_indx]:
-            check_rule[0] = True
-        else:
-            check_rule[0] = False
-        # 3 Condition
-        if ma.iloc[ma_t_indx] > ema.iloc[ema_t_indx]:
+        if ema.iloc[indx] > ema.iloc[indx_min_1]:
             check_rule[1] = True
         else:
             check_rule[1] = False
-        # 4 Condition
-        if ma.iloc[ma_t_min_1_indx] > ema.iloc[ema_t_min_1_indx]:
+        # 3 Condition
+        if ma.iloc[indx] > ema.iloc[indx]:
             check_rule[2] = True
         else:
             check_rule[2] = False
+        # 4 Condition
+        if ma.iloc[indx_min_1] > ema.iloc[indx_min_1]:
+            check_rule[3] = True
+        else:
+            check_rule[3] = False
         order_positions = int
 
         if open_positions == 0 and check_rule == condition_sell:
@@ -128,9 +123,9 @@ def ma_ema_cross_strategy_test(historical_candles_df):
     #     d = historical_candles_df['ema']
     #     plt.plot(a, b, a, c, a, d)
     #     plt.show()
-    #
+
     # Вывод полученных значений
-    # print(historical_candles_df)
+    print(historical_candles_df)
 
     # Запись значений в файл со своим названием
     # historical_candles_df.to_csv('csv_files/brent062022_report.csv')
