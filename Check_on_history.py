@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 
 
 
+
 # Часть для обработки файла с данными
 hist_candles_brent = pd.read_csv('csv_files/brent062022_report.csv')
 
@@ -49,7 +50,7 @@ def ma_ema_cross_strategy_test(historical_candles_df):
     ma = hcdf['ma']
     ema = hcdf['ema']
     hcdf['contract_turnover'] = 0
-    hcdf['deal'] = 'NaN'
+    hcdf['deal'] = pd.NaT
     hcdf['commission'] = 0
 
 
@@ -88,6 +89,8 @@ def ma_ema_cross_strategy_test(historical_candles_df):
             order_positions = -1
         elif open_positions == 0 and check_rule == condition_buy:
             order_positions = 1
+        elif indx == len(hcdf) - 2:
+            order_positions = -1 * open_positions
         elif open_positions == -1:
             order_positions = 2
         elif open_positions == 1:
@@ -101,6 +104,10 @@ def ma_ema_cross_strategy_test(historical_candles_df):
             hcdf.loc[indx, 'deal'] = 'sell'
             hcdf.loc[indx, 'contract_turnover'] = order_positions * hcdf.loc[indx, 'close'] / 0.01 * 6.41814
             hcdf.loc[indx, 'commission'] = abs(order_positions * hcdf.loc[indx, 'close'] / 0.01 * 6.41814 * 0.0004)
+        elif indx == len(hcdf) - 2:
+            hcdf.loc[indx, 'deal'] = 'close'
+            hcdf.loc[indx, 'contract_turnover'] = order_positions * hcdf.loc[indx, 'close'] / 0.01 * 6.41814
+            hcdf.loc[indx, 'commission'] = abs(order_positions * hcdf.loc[indx, 'close'] / 0.01 * 6.41814 * 0.0004)
 
         if open_positions == 0 and check_rule == condition_buy:
             open_positions += 1
@@ -110,6 +117,8 @@ def ma_ema_cross_strategy_test(historical_candles_df):
             open_positions -= 1
         elif open_positions == 1 and check_rule == condition_sell:
             open_positions -= 2
+        elif indx == len(hcdf)-2:
+            open_positions = 1 - open_positions
         else:
             open_positions = open_positions
 
@@ -126,30 +135,37 @@ def ma_ema_cross_strategy_test(historical_candles_df):
 
     # Вывод полученных значений
     hcdf.drop(columns=['Unnamed: 0'], inplace=True)
-    hcdf = hcdf.convert_dtypes(infer_objects=True)
-    hcdf['commission'].dropna(axis=0, how='any', inplace=True)
+    hcdf.dropna(how='any', inplace=True)
+
     # print(hcdf)
+
     return hcdf
 
     # Запись значений в файл со своим названием
-    # hcdf.to_csv('csv_files/brent062022_report.csv', mode='w')
+    # hcdf.to_csv('csv_files/brent062022_orders.csv', mode='w')
     # print('Record to file complete')
 
 
-
 def check_profits(operations_df):
-    operations_df['deal'].dropna(inplace=True)
+    operations_df.dropna(how='any', inplace=True)
     trade_result = 0
     commision_sum = 0
-    o = operations_df['contract_turnover']
-    c = operations_df['commission']
+    # o = operations_df['contract_turnover']
+    # c = operations_df['commission']
     for i in range(len(operations_df)):
-        trade_result += o[i]
-        commision_sum += c[i]
 
-    print(trade_result - commision_sum)
-    return operations_df
+        trade_result += operations_df['contract_turnover'].iloc[i]
+        commision_sum += operations_df['commission'].iloc[i]
+
+    return print(trade_result - commision_sum)
+
+
+def record_orders_results(operations_df):
+    operations_df.dropna(how='any', inplace=True)
+    operations_df.to_csv('csv_files/brent062022_orders.csv')
+    return print('Record orders results complete')
 
 
 df = ma_ema_cross_strategy_test(hist_candles_brent)
-print(df)
+
+check_profits(df)
