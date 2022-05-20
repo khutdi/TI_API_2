@@ -69,19 +69,19 @@ def ma_ema_cross_strategy_test(historical_candles_df):
 
         # 2 Condition
         if ema.iloc[indx] > ema.iloc[indx_min_1]:
+            check_rule[0] = True
+        else:
+            check_rule[0] = False
+        # 3 Condition
+        if ma.iloc[indx] > ema.iloc[indx]:
             check_rule[1] = True
         else:
             check_rule[1] = False
-        # 3 Condition
-        if ma.iloc[indx] > ema.iloc[indx]:
+        # 4 Condition
+        if ma.iloc[indx_min_1] > ema.iloc[indx_min_1]:
             check_rule[2] = True
         else:
             check_rule[2] = False
-        # 4 Condition
-        if ma.iloc[indx_min_1] > ema.iloc[indx_min_1]:
-            check_rule[3] = True
-        else:
-            check_rule[3] = False
         order_positions = int
 
         if open_positions == 0 and check_rule == condition_sell:
@@ -133,3 +133,15 @@ def ma_ema_cross_strategy_test(historical_candles_df):
 
 ma_ema_cross_strategy_test(hist_candles_brent)
 
+def check_profits(operations_df):
+    operations_df['contract_turnover'].dropna(inplace=True)
+    trade_result = 0
+    commision_sum = 0
+    for i in range(len(operations_df)):
+        trade_result += operations_df[i]['contract_turnover']
+        commision_sum += operations_df[i]['comission']
+
+    print(trade_result - commision_sum)
+
+
+check_profits(hist_candles_brent)
