@@ -14,17 +14,17 @@ hist_candles_brent = pd.read_csv('csv_files/brent062022_report.csv')
 # hist_candles_brent.drop(columns=['Unnamed: 0'], inplace=True) # Убираем лишнюю нумерацию(Лишние столбцы)
 # for i in range(0, 9):
 #     hist_candles_brent.drop([i], inplace=True) # Убираем значеня для которых нет рассчитаных индексов МА и ЕМА
-#
-# Убираем повторения названий из выгрузки
+# #
+# # Убираем повторения названий из выгрузки
 # hist_candles_brent.drop_duplicates(subset=['time', 'volume', 'open', 'close', 'high', 'low'], inplace=True)
-# Убираем пропуски значений
+# # Убираем пропуски значений
 # hist_candles_brent.dropna(inplace=True)
-
-# Проверка очищенных данных
+#
+# # Проверка очищенных данных
 # print(hist_candles_brent)
 # print(hist_candles_brent.dtypes)
-
-# Перезапись в файл данных
+#
+# # Перезапись в файл данных
 # hist_candles_brent.to_csv('csv_files/brent062022_report.csv', mode='w')
 # print("Record complete")
 
@@ -41,44 +41,44 @@ hist_candles_brent = pd.read_csv('csv_files/brent062022_report.csv')
 
 
 def ma_ema_cross_strategy_test(historical_candles_df):
+    hcdf = historical_candles_df
     open_positions = 0  # Текущие открытые позиции
     check_rule = [bool, bool, bool]  # Массив для проверки по правилам
     condition_sell = [False, True, False]  # Правило 1
     condition_buy = [True, False, True]  # Правило 2
-    close = historical_candles_df['close']
-    ma = historical_candles_df['ma']
-    ema = historical_candles_df['ema']
-    historical_candles_df['contract_turnover'] = 'NaN'
-    contract_turnover = historical_candles_df['contract_turnover']
-    historical_candles_df['deal'] = 'NaN'
-    deal = historical_candles_df['deal']
-    historical_candles_df['comission'] = 'NaN'
-    broker_comission = historical_candles_df['comission']
+    ma = hcdf['ma']
+    ema = hcdf['ema']
+    hcdf['contract_turnover'] = 0
+    hcdf['deal'] = 'NaN'
+    hcdf['commission'] = 0
 
 
-    for indx in range(len(historical_candles_df)):
+
+    for indx in range(len(hcdf)):
 
         indx_min_1 = indx - 1
+        if indx_min_1 < 0:
+            continue
 
         # Условие которое может быть пригодится
         # 1 Condition
-        # if ma.iloc[indx] > ma.iloc[indx_min_1]:
+        # if ma.loc[indx, ()] > ma.loc[indx, ()_min_1]:
         #    check_rule[0] = True
         # else:
         #     check_rule[0] = False
 
         # 2 Condition
-        if ema.iloc[indx] > ema.iloc[indx_min_1]:
+        if ema[indx] > ema[indx_min_1]:
             check_rule[0] = True
         else:
             check_rule[0] = False
         # 3 Condition
-        if ma.iloc[indx] > ema.iloc[indx]:
+        if ma[indx] > ema[indx]:
             check_rule[1] = True
         else:
             check_rule[1] = False
         # 4 Condition
-        if ma.iloc[indx_min_1] > ema.iloc[indx_min_1]:
+        if ma[indx_min_1] > ema[indx_min_1]:
             check_rule[2] = True
         else:
             check_rule[2] = False
@@ -94,13 +94,13 @@ def ma_ema_cross_strategy_test(historical_candles_df):
             order_positions = -2
 
         if check_rule == condition_buy and open_positions != 1:
-            deal.iloc[indx] = 'buy'
-            contract_turnover.iloc[indx] = order_positions * close.iloc[indx] / 0.01 * 6.41814
-            broker_comission.iloc[indx] = abs(order_positions * close.iloc[indx] / 0.01 * 6.41814 * 0.0004)
+            hcdf.loc[indx, 'deal'] = 'buy'
+            hcdf.loc[indx, 'contract_turnover'] = order_positions * hcdf.loc[indx, 'close'] / 0.01 * 6.41814
+            hcdf.loc[indx, 'commission'] = abs(order_positions * hcdf.loc[indx, 'close'] / 0.01 * 6.41814 * 0.0004)
         elif check_rule == condition_sell and open_positions != -1:
-            deal.iloc[indx] = 'sell'
-            contract_turnover.iloc[indx] = order_positions * close.iloc[indx] / 0.01 * 6.41814
-            broker_comission.iloc[indx] = abs(order_positions * close.iloc[indx] / 0.01 * 6.41814 * 0.0004)
+            hcdf.loc[indx, 'deal'] = 'sell'
+            hcdf.loc[indx, 'contract_turnover'] = order_positions * hcdf.loc[indx, 'close'] / 0.01 * 6.41814
+            hcdf.loc[indx, 'commission'] = abs(order_positions * hcdf.loc[indx, 'close'] / 0.01 * 6.41814 * 0.0004)
 
         if open_positions == 0 and check_rule == condition_buy:
             open_positions += 1
@@ -117,31 +117,39 @@ def ma_ema_cross_strategy_test(historical_candles_df):
 
     # Построение графика при необходимости (нужно еще раскомментировать импорт matplotlib)
     # with plt.style.context('Solarize_Light2'):
-    #     a = historical_candles_df['time']
-    #     b = historical_candles_df['close']
-    #     c = historical_candles_df['ma']
-    #     d = historical_candles_df['ema']
+    #     a = hcdf['time']
+    #     b = hcdf['close']
+    #     c = hcdf['ma']
+    #     d = hcdf['ema']
     #     plt.plot(a, b, a, c, a, d)
     #     plt.show()
 
     # Вывод полученных значений
-    print(historical_candles_df)
+    hcdf.drop(columns=['Unnamed: 0'], inplace=True)
+    hcdf = hcdf.convert_dtypes(infer_objects=True)
+    hcdf['commission'].dropna(axis=0, how='any', inplace=True)
+    # print(hcdf)
+    return hcdf
 
     # Запись значений в файл со своим названием
-    # historical_candles_df.to_csv('csv_files/brent062022_report.csv')
+    # hcdf.to_csv('csv_files/brent062022_report.csv', mode='w')
     # print('Record to file complete')
 
-ma_ema_cross_strategy_test(hist_candles_brent)
+
 
 def check_profits(operations_df):
-    operations_df['contract_turnover'].dropna(inplace=True)
+    operations_df['deal'].dropna(inplace=True)
     trade_result = 0
     commision_sum = 0
+    o = operations_df['contract_turnover']
+    c = operations_df['commission']
     for i in range(len(operations_df)):
-        trade_result += operations_df[i]['contract_turnover']
-        commision_sum += operations_df[i]['comission']
+        trade_result += o[i]
+        commision_sum += c[i]
 
     print(trade_result - commision_sum)
+    return operations_df
 
 
-check_profits(hist_candles_brent)
+df = ma_ema_cross_strategy_test(hist_candles_brent)
+print(df)
