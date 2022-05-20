@@ -10,24 +10,24 @@ import matplotlib.pyplot as plt
 
 
 # Часть для обработки файла с данными
-hist_candles_brent = pd.read_csv('csv_files/brent062022_report.csv')
+hist_candles_brent = pd.read_csv('csv_files/brent062022_list.csv')
 
-# hist_candles_brent.drop(columns=['Unnamed: 0'], inplace=True) # Убираем лишнюю нумерацию(Лишние столбцы)
-# for i in range(0, 9):
-#     hist_candles_brent.drop([i], inplace=True) # Убираем значеня для которых нет рассчитаных индексов МА и ЕМА
-# #
-# # Убираем повторения названий из выгрузки
-# hist_candles_brent.drop_duplicates(subset=['time', 'volume', 'open', 'close', 'high', 'low'], inplace=True)
-# # Убираем пропуски значений
-# hist_candles_brent.dropna(inplace=True)
+hist_candles_brent.drop(columns=['Unnamed: 0'], inplace=True) # Убираем лишнюю нумерацию(Лишние столбцы)
+for i in range(0, 9):
+    hist_candles_brent.drop([i], inplace=True) # Убираем значеня для которых нет рассчитаных индексов МА и ЕМА
 #
-# # Проверка очищенных данных
-# print(hist_candles_brent)
-# print(hist_candles_brent.dtypes)
-#
-# # Перезапись в файл данных
-# hist_candles_brent.to_csv('csv_files/brent062022_report.csv', mode='w')
-# print("Record complete")
+# Убираем повторения названий из выгрузки
+hist_candles_brent.drop_duplicates(subset=['time', 'volume', 'open', 'close', 'high', 'low'], inplace=True)
+# Убираем пропуски значений
+hist_candles_brent.dropna(inplace=True)
+
+# Проверка очищенных данных
+print(hist_candles_brent)
+print(hist_candles_brent.dtypes)
+
+# Перезапись в файл данных
+hist_candles_brent.to_csv('csv_files/brent062022_report.csv', mode='w')
+print("Record complete")
 
 
 # Добавление индикаторов
@@ -166,6 +166,7 @@ def record_orders_results(operations_df):
     return print('Record orders results complete')
 
 
-df = ma_ema_cross_strategy_test(hist_candles_brent)
+brent_report = pd.read_csv('csv_files/brent062022_report.csv')
+df = ma_ema_cross_strategy_test(brent_report)
 
 check_profits(df)
