@@ -4,9 +4,9 @@
 
 
 ### Для работы с файлами нужно заполнить:
-[intro/basek.py](https://github.com/khutdi/TI_API_2/blob/master/intro/basek.py) добавив туда свой **токен** <br/>
-Затем с помощью [Account_n_Portfolio.py](https://github.com/khutdi/TI_API_2/blob/master/Account_n_Portfolio.py) можно получить **ID аккаунта** <br/>
-Его нужно для дальнейшей работы добавить в файл [intro/accid.py](https://github.com/khutdi/TI_API_2/blob/master/intro/accid.py) <br/>
+1. [intro/basek.py](https://github.com/khutdi/TI_API_2/blob/master/intro/basek.py) добавив туда свой **токен** <br/>
+2. Затем с помощью [Account_n_Portfolio.py](https://github.com/khutdi/TI_API_2/blob/master/Account_n_Portfolio.py) можно получить **ID аккаунта** <br/>
+3. Его нужно для дальнейшей работы добавить в файл [intro/accid.py](https://github.com/khutdi/TI_API_2/blob/master/intro/accid.py) <br/>
 
 ### Доступные сейчас возможности:
 
