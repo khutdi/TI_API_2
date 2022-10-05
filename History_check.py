@@ -10,6 +10,7 @@ import tinkoff.invest
 import intro.basek
 import intro.accid
 from intro.quotation_dt import quotation_count
+# from Instr_last_candles import start_date, end_date
 
 dtypes_dic = {'time': str,
               'volume': int,
@@ -22,14 +23,14 @@ dtypes_dic = {'time': str,
               }
 
 # Часть для обработки файла с данными
-hist_candles_inst = pd.read_csv('csv_files/brent092022_7-8mnth.csv', dtype=dtypes_dic)
+hist_candles_inst = pd.read_csv('csv_files/moex_mini_092022_09mnth.csv', dtype=dtypes_dic)
 
 # Здесь запросы токена и id из stub файлов, и самого клиента из библиотеки Тинькофф
 TOKEN = intro.basek.TINKOFF_INVEST_DOG_NEW
 SDK_client = tinkoff.invest.Client(TOKEN)
 User_acc_ID = intro.accid.ACC_ID
-instrument_figi = 'FUTBR0922000'
-open_positions_limit = 60000
+instrument_figi = 'FUTMXI122200'
+open_positions_limit = 70000
 close_time = datetime.time.fromisoformat('15:30:00')
 
 count_time_base = datetime.datetime(1,1,1, close_time.hour, close_time.minute, close_time.second)
@@ -136,9 +137,11 @@ def ma_ema_cross_strategy_test(historical_candles_df):
         elif open_positions > 0:
             order_positions = -2 * math.floor(open_positions_limit/(hcdf.loc[indx, 'close'] * fi_b/fi_a))
             # print('Order positions:', order_positions, 'condition_buy from open short positions')
+
         # print(pd.Timestamp(time_line[indx]).day_of_week, time_line[indx], pd.Timestamp(time_line[indx]).ctime())
         hcdf.loc[indx, 'open_position'] = open_positions
 
+        # Основная часть с проверкой и созданием отчёта
         if close_period_end.time() >= pd.Timestamp(time_line[indx]).time() >= close_period_start.time():
             continue
         elif open_positions != 0 and \
@@ -146,7 +149,7 @@ def ma_ema_cross_strategy_test(historical_candles_df):
             pd.Timestamp(time_line[indx]).time() >= close_time:
             hcdf.loc[indx, 'deal'] = 'week end'
             order_positions = open_positions
-            hcdf.loc[indx, 'contract_turnover'] = -1 * order_positions * (hcdf.loc[indx, 'close'] / fi_a * fi_b)
+            hcdf.loc[indx, 'contract_turnover'] = order_positions * (hcdf.loc[indx, 'close'] / fi_a * fi_b)
             hcdf.loc[indx, 'commission'] = abs(order_positions * (hcdf.loc[indx, 'close'] / fi_a * fi_b) * 0.0004)
             hcdf.loc[indx, 'open_position'] = open_positions + -1 * order_positions
             hcdf.loc[indx, 'order_position'] = -1 * order_positions
@@ -155,14 +158,14 @@ def ma_ema_cross_strategy_test(historical_candles_df):
 
         if check_rule == condition_buy and open_positions <= 0:
             hcdf.loc[indx, 'deal'] = 'buy'
-            hcdf.loc[indx, 'contract_turnover'] = order_positions * (hcdf.loc[indx, 'close'] / fi_a * fi_b)
+            hcdf.loc[indx, 'contract_turnover'] = -1 * order_positions * (hcdf.loc[indx, 'close'] / fi_a * fi_b)
             hcdf.loc[indx, 'commission'] = abs(order_positions * (hcdf.loc[indx, 'close'] / fi_a * fi_b) * 0.0004)
             hcdf.loc[indx, 'open_position'] = open_positions + order_positions
             hcdf.loc[indx, 'order_position'] = order_positions
             open_positions = open_positions + order_positions
         elif check_rule == condition_sell and open_positions >= 0:
             hcdf.loc[indx, 'deal'] = 'sell'
-            hcdf.loc[indx, 'contract_turnover'] = order_positions * (hcdf.loc[indx, 'close'] / fi_a * fi_b)
+            hcdf.loc[indx, 'contract_turnover'] = -1 * order_positions * (hcdf.loc[indx, 'close'] / fi_a * fi_b)
             hcdf.loc[indx, 'commission'] = abs(order_positions * (hcdf.loc[indx, 'close'] / fi_a * fi_b) * 0.0004)
             hcdf.loc[indx, 'open_position'] = open_positions + order_positions
             hcdf.loc[indx, 'order_position'] = order_positions
@@ -170,11 +173,12 @@ def ma_ema_cross_strategy_test(historical_candles_df):
         elif indx == len(hcdf) - 10:
             print('last one done')
             hcdf.loc[indx, 'deal'] = 'close'
-            hcdf.loc[indx, 'contract_turnover'] = -1 * order_positions / 2 * (hcdf.loc[indx, 'close'] / fi_a * fi_b)
-            hcdf.loc[indx, 'commission'] = abs(-1 * order_positions / 2 * (hcdf.loc[indx, 'close'] / fi_a * fi_b) * 0.0004)
-            hcdf.loc[indx, 'open_position'] = open_positions + order_positions / 2
-            hcdf.loc[indx, 'order_position'] = -1 * order_positions / 2
-            open_positions = open_positions + -1 * order_positions / 2
+            order_positions = open_positions
+            hcdf.loc[indx, 'contract_turnover'] = order_positions * (hcdf.loc[indx, 'close'] / fi_a * fi_b)
+            hcdf.loc[indx, 'commission'] = abs(-1 * order_positions * (hcdf.loc[indx, 'close'] / fi_a * fi_b) * 0.0004)
+            hcdf.loc[indx, 'open_position'] = open_positions + -1 * order_positions
+            hcdf.loc[indx, 'order_position'] = -1 * order_positions
+            open_positions = open_positions + -1 * order_positions
             print(open_positions)
             break
         else:
@@ -194,7 +198,7 @@ def ma_ema_cross_strategy_test(historical_candles_df):
     #     plt.show()
     # Вывод полученных значений
     # hcdf.drop(columns=['Unnamed: 0'], inplace=True)
-    hcdf.dropna(how='any', inplace=True)
+    # hcdf.dropna(how='any', inplace=True)
     print(hcdf)
     # Запись значений в файл со своим названием
     # hcdf.to_csv('csv_files/brent062022_orders.csv', mode='w')
@@ -213,8 +217,11 @@ def check_profits(operations_df):
         trade_result += operations_df['contract_turnover'].iloc[i]
         commision_sum += operations_df['commission'].iloc[i]
 
+    profitability = trade_result / open_positions_limit * 100
     return print('trade result = ', trade_result - commision_sum, '\n',
-                 'only operations =', trade_result)
+                 'only operations =', trade_result, '\n',
+                 'commision sum =', commision_sum, '\n',
+                 'profitability % =', profitability, 'by period: ', 17, 'days')
 
 
 def record_orders_results(operations_df):
