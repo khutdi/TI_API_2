@@ -12,5 +12,5 @@
 
 - Скачивание списка фьючерсов и акций через [Get_Futures_Shares_List.py](https://github.com/khutdi/TI_API_2/blob/master/Get_Futures_Shares_List.py)
 - Скачивание исторических данных "свечей" выбранного инструмента (по figi) через [Instr_last_candles.py]([Instr_last_candles.py](https://github.com/khutdi/TI_API_2/blob/master/I)nstr_last_candles.py)
-- Тестирование на исторических данных стратегии MA cross EMA (Получим данные в виде таблицы) через [Check_on_history.py (сейчас настроенное на фьючерсы)](https://github.com/khutdi/TI_API_2/blob/master/Check_on_history.py)
+- Тестирование на исторических данных стратегии MA cross EMA (Получим данные в виде таблицы) через [History check.py (сейчас настроенное на фьючерсы)](https://github.com/khutdi/TI_API_2/blob/master/History_check.py)
 - Построение графика данных для проверки полученных результатов используя Matplotlib через [Check_on_history.py](https://github.com/khutdi/TI_API_2/blob/master/Check_on_history.py) тот же файл, разкомментированием строк 127-134
