@@ -14,5 +14,4 @@
 - Скачивание исторических данных "свечей" выбранного инструмента (по figi) через [Instr_last_candles.py]([Instr_last_candles.py](https://github.com/khutdi/TI_API_2/blob/master/I)nstr_last_candles.py)
 - Тестирование на исторических данных стратегии MA cross EMA (Получим данные в виде таблицы) через [History_check.py (сейчас настроенное на фьючерсы)](https://github.com/khutdi/TI_API_2/blob/master/History_check.py)
 - Построение графика данных для проверки полученных результатов используя Matplotlib через [History_check.py](https://github.com/khutdi/TI_API_2/blob/master/History_check.py) тот же файл, разкомментированием строк 127-134
-- Скачивание ленты сделок по инструменту с записью в csv файл через [Deal_tape_get.py]
-(https://github.com/khutdi/TI_API_2/blob/master/Deal_tape_get.py)
+- Скачивание ленты сделок по инструменту с записью в csv файл через [Deal_tape_get.py](https://github.com/khutdi/TI_API_2/blob/master/Deal_tape_get.py)
